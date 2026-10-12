@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { config } from "./config.js";
-import { getFullUtmParams, sendWebhookEvent } from "./utils/analytics.js";
+import { clientConfig } from "./clientConfig.js";
+import { getFullUtmParams, initYandexMetrika, sendWebhookEvent } from "./utils/analytics.js";
 import { Hero } from "./components/Hero.jsx";
 import { WhatsAppButton } from "./components/WhatsAppButton.jsx";
 
@@ -11,10 +11,18 @@ export default function App() {
   const [utmParams] = useState(() => getFullUtmParams());
   const [content] = useState(() => {
     const zoneKey = utmParams.utm_content;
-    return config.zones[zoneKey] || config.defaultContent;
+    const zoneOverride = clientConfig.zones?.[zoneKey];
+    return {
+      offer: zoneOverride?.offer || clientConfig.offer,
+      subtitle: zoneOverride?.subtitle || clientConfig.subtitle,
+      whatsappMessage: zoneOverride?.whatsappMessage || clientConfig.whatsappMessage,
+    };
   });
 
   useEffect(() => {
+    // Подключаем Яндекс.Метрику один раз при монтировании (если ID задан).
+    initYandexMetrika();
+
     // Отправляем событие page_view с защитой от задвоения.
     // Ключ уникален для кампании: если пользователь обновит страницу (F5)
     // или вернётся из WhatsApp — повторной отправки не будет.
@@ -28,13 +36,16 @@ export default function App() {
   }, [utmParams]);
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-neutral-950 text-white flex flex-col items-center justify-center px-6 pb-[env(safe-area-inset-bottom)]">
-      <Hero title={content.title} subtitle={content.subtitle} />
+    <div
+      className="h-screen w-screen overflow-hidden flex flex-col items-center justify-center px-6 pb-[env(safe-area-inset-bottom)]"
+      style={{ backgroundColor: clientConfig.backgroundColor, color: clientConfig.textColor }}
+    >
+      <Hero title={content.offer} subtitle={content.subtitle} />
       <WhatsAppButton
-        whatsappNumber={config.whatsappNumber}
+        whatsappNumber={clientConfig.whatsappPhone}
         whatsappMessage={content.whatsappMessage}
         utmParams={utmParams}
-        yandexMetrikaId={config.yandexMetrikaId}
+        yandexMetrikaId={clientConfig.yandexMetrikaId}
       />
     </div>
   );

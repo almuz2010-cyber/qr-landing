@@ -1,8 +1,37 @@
-import { config } from "../config.js";
+import { clientConfig } from "../clientConfig.js";
 
 // ============================================
 // УТИЛИТЫ АНАЛИТИКИ
 // ============================================
+
+/**
+ * Динамически подключает счётчик Яндекс.Метрики и инициализирует его.
+ * ID берётся из clientConfig.yandexMetrikaId — если он пустой, скрипт не
+ * подключается (чтобы не засорять консоль и не грузить лишний JS впустую).
+ */
+export function initYandexMetrika() {
+    const counterId = clientConfig.yandexMetrikaId;
+    if (!counterId) {
+        return;
+    }
+
+    (function (m, e, t, r, i, k, a) {
+        m[i] = m[i] || function () { (m[i].a = m[i].a || []).push(arguments); };
+        m[i].l = 1 * new Date();
+        for (let j = 0; j < e.scripts.length; j++) {
+            if (e.scripts[j].src === r) { return; }
+        }
+        k = e.createElement(t); a = e.getElementsByTagName(t)[0];
+        k.async = 1; k.src = r; a.parentNode.insertBefore(k, a);
+    })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    window.ym(counterId, "init", {
+        clickmap: true,
+        trackLinks: true,
+        accurateTrackBounce: true,
+        webvisor: true,
+    });
+}
 
 /**
  * Читает все UTM-параметры из URL.
@@ -48,10 +77,10 @@ export function getDeviceOS() {
  * "Respond to Webhook" и разрешены CORS-запросы, иначе браузер заблокирует fetch.
  */
 export function sendWebhookEvent(eventName, utmParams) {
-    // Пока в config.js стоит плейсхолдер (URL ещё не настроен в n8n) —
+    // Пока в clientConfig.js webhook не указан (пустая строка) —
     // не делаем запрос, чтобы не засорять консоль 404-ошибками.
-    const webhookUrl = config.n8nWebhookUrl;
-    if (!webhookUrl || webhookUrl.includes("YOUR_N8N")) {
+    const webhookUrl = clientConfig.n8nWebhookUrl;
+    if (!webhookUrl) {
         return;
     }
 

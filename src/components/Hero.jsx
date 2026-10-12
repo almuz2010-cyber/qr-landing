@@ -1,3 +1,4 @@
+import { clientConfig } from '../clientConfig';
 import { motion } from "framer-motion";
 
 export function Hero({ title, subtitle }) {
@@ -8,11 +9,11 @@ export function Hero({ title, subtitle }) {
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="text-center mb-8 px-4"
         >
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight">
-                {title}
+            <h1 className="text-3xl sm:text-4xl font-bold mb-4 leading-tight" style={{ color: clientConfig.textColor }}>
+                {clientConfig.offer}
             </h1>
-            <p className="text-lg sm:text-xl text-neutral-200 leading-relaxed">
-                {subtitle}
+            <p className="text-lg sm:text-xl leading-relaxed" style={{ color: clientConfig.textColor }}>
+                {clientConfig.subtitle}
             </p>
         </motion.div>
     );

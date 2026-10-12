@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
-import { config } from "../config.js";
+import { clientConfig } from "../clientConfig.js";
 import { sendWebhookEvent } from "../utils/analytics.js";
 
 export function WhatsAppButton({ whatsappNumber, whatsappMessage, utmParams, yandexMetrikaId }) {
@@ -16,7 +16,7 @@ export function WhatsAppButton({ whatsappNumber, whatsappMessage, utmParams, yan
         // 3. Открытие WhatsApp.
         // Используем window.location.href: на мобильных это надёжнее открывает deep links,
         // чем window.open, который браузеры часто блокируют как popup.
-        const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+        const url = `https://wa.me/${clientConfig.whatsappPhone}?text=${encodeURIComponent(clientConfig.whatsappMessage)}`;
         window.location.href = url;
     };
 
@@ -31,7 +31,7 @@ export function WhatsAppButton({ whatsappNumber, whatsappMessage, utmParams, yan
                 scale: { duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 0.8 },
             }}
             className="h-16 w-full max-w-sm flex items-center justify-center gap-2 rounded-full text-white font-bold text-lg shadow-lg"
-            style={{ backgroundColor: config.theme.buttonColor }}
+            style={{ backgroundColor: clientConfig.primaryColor }}
         >
             <MessageCircle size={24} />
             Написать в WhatsApp
